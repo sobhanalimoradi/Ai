@@ -9,17 +9,10 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --sidebar-w: 260px;
-  --bg: #ffffff;
-  --surface: #f7f7f8;
-  --surface2: #efefef;
-  --border: #e5e5e5;
-  --border2: #d0d0d0;
-  --text: #1a1a1a;
-  --text2: #6b6b6b;
-  --text3: #b0b0b0;
-  --accent: #1a1a1a;
-  --accent-fg: #ffffff;
+  --bg: #ffffff; --surface: #f7f7f8; --surface2: #efefef;
+  --border: #e5e5e5; --border2: #d0d0d0;
+  --text: #1a1a1a; --text2: #6b6b6b; --text3: #b0b0b0;
+  --accent: #1a1a1a; --accent-fg: #ffffff;
   --sidebar-bg: #f0f0f0;
   --font: 'Inter', -apple-system, sans-serif;
   --mono: 'JetBrains Mono', monospace;
@@ -28,7 +21,7 @@ html, body { height: 100%; overflow: hidden; }
 body { font-family: var(--font); background: var(--bg); color: var(--text); display: flex; height: 100vh; }
 
 .sidebar {
-  width: var(--sidebar-w); flex-shrink: 0; background: var(--sidebar-bg);
+  width: 260px; flex-shrink: 0; background: var(--sidebar-bg);
   border-right: 1px solid var(--border); display: flex; flex-direction: column;
   padding: 16px 12px; gap: 6px;
 }
@@ -42,7 +35,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
   color: var(--accent-fg); font-size: 12px; font-weight: 600;
   font-family: var(--mono); letter-spacing: -0.5px; flex-shrink: 0;
 }
-.logo-name { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; color: var(--text); }
+.logo-name { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
 .logo-name sub { font-size: 9px; font-weight: 500; color: var(--text3); margin-left: 2px; }
 .new-chat-btn {
   display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 10px;
@@ -75,7 +68,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
   color: var(--accent-fg); display: flex; align-items: center; justify-content: center;
   font-size: 11px; font-weight: 600; flex-shrink: 0;
 }
-.footer-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.footer-label { font-size: 13px; font-weight: 500; }
 .footer-sub { font-size: 11px; color: var(--text3); }
 
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -86,11 +79,12 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 .model-pill {
   display: flex; align-items: center; gap: 6px; padding: 5px 12px;
   border: 1px solid var(--border); border-radius: 999px; font-size: 12px;
-  font-weight: 500; color: var(--text2); cursor: default; user-select: none;
-  background: var(--surface);
+  font-weight: 500; color: var(--text2); background: var(--surface);
+  user-select: none;
 }
 .status-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
-.topbar-right { display: flex; gap: 8px; }
+.status-dot.loading { background: #f59e0b; animation: pulse 1s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 .topbar-btn {
   width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 7px;
   background: transparent; color: var(--text2); cursor: pointer;
@@ -101,7 +95,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 
 .messages-wrap { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
 .messages-wrap::-webkit-scrollbar { width: 5px; }
-.messages-wrap::-webkit-scrollbar-track { background: transparent; }
 .messages-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 .messages-inner {
   max-width: 720px; width: 100%; margin: 0 auto;
@@ -133,16 +126,16 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .msg-row.user { align-items: flex-end; }
 .msg-row.assistant { align-items: flex-start; }
-.msg-label { font-size: 11px; font-weight: 500; color: var(--text3); padding: 0 4px; letter-spacing: 0.2px; }
+.msg-label { font-size: 11px; font-weight: 500; color: var(--text3); padding: 0 4px; }
 .bubble-user {
-  background: #1a1a1a; color: #ffffff; padding: 12px 16px;
-  border-radius: 18px 18px 4px 18px; font-size: 14.5px; line-height: 1.65;
-  max-width: 80%; word-break: break-word;
+  background: #1a1a1a; color: #fff; padding: 12px 16px;
+  border-radius: 18px 18px 4px 18px; font-size: 14.5px;
+  line-height: 1.65; max-width: 80%; word-break: break-word;
 }
 .bubble-ai {
   background: var(--surface); border: 1px solid var(--border); padding: 14px 18px;
-  border-radius: 4px 18px 18px 18px; font-size: 14.5px; line-height: 1.7;
-  max-width: 92%; word-break: break-word; color: var(--text);
+  border-radius: 4px 18px 18px 18px; font-size: 14.5px;
+  line-height: 1.7; max-width: 92%; word-break: break-word;
 }
 .bubble-ai p { margin-bottom: 10px; }
 .bubble-ai p:last-child { margin-bottom: 0; }
@@ -151,8 +144,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
   border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px;
 }
 .bubble-ai pre {
-  background: #1a1a1a; border-radius: 8px; padding: 14px 16px; overflow-x: auto;
-  margin: 10px 0; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; color: #e5e5e5;
+  background: #1a1a1a; border-radius: 8px; padding: 14px 16px;
+  overflow-x: auto; margin: 10px 0; font-family: var(--mono);
+  font-size: 12.5px; line-height: 1.6; color: #e5e5e5;
 }
 .bubble-ai pre code { background: transparent; border: none; padding: 0; color: inherit; }
 
@@ -165,7 +159,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 .thinking-row {
   display: flex; align-items: center; gap: 8px; padding: 14px 18px;
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 4px 18px 18px 18px; max-width: 120px;
+  border-radius: 4px 18px 18px 18px; max-width: 100px;
 }
 .thinking-row span {
   width: 5px; height: 5px; background: var(--text3); border-radius: 50%;
@@ -184,9 +178,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 }
 .input-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,26,26,0.06); }
 .input-box textarea {
-  flex: 1; background: transparent; border: none; outline: none; color: var(--text);
-  font-family: var(--font); font-size: 14.5px; line-height: 1.6; resize: none;
-  padding: 2px 0; max-height: 180px; overflow-y: auto;
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: var(--font); font-size: 14.5px;
+  line-height: 1.6; resize: none; padding: 2px 0; max-height: 180px; overflow-y: auto;
 }
 .input-box textarea::placeholder { color: var(--text3); }
 .input-box textarea::-webkit-scrollbar { width: 0; }
@@ -199,13 +193,14 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 .send-btn:hover { opacity: 0.82; }
 .send-btn:active { transform: scale(0.93); }
 .send-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
 .input-footer { text-align: center; font-size: 11px; color: var(--text3); margin-top: 10px; }
 
 #toast {
   position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; color: #f87171;
-  border: 1px solid #3f1515; border-radius: 10px; padding: 12px 16px; font-size: 13px;
-  max-width: 340px; line-height: 1.5; z-index: 999; display: none;
-  animation: slideUp 0.25s ease;
+  border: 1px solid #3f1515; border-radius: 10px; padding: 12px 16px;
+  font-size: 13px; max-width: 380px; line-height: 1.5; z-index: 999;
+  display: none; animation: slideUp 0.25s ease;
 }
 @keyframes slideUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 </style>
@@ -237,14 +232,12 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 <div class="main">
   <div class="topbar">
     <div class="model-pill">
-      <div class="status-dot"></div>
-      sobbyAI — Pro
+      <div class="status-dot loading" id="status-dot"></div>
+      <span id="model-label">sobbyAI — connecting...</span>
     </div>
-    <div class="topbar-right">
-      <button class="topbar-btn" id="topbar-new-btn" title="New chat">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      </button>
-    </div>
+    <button class="topbar-btn" id="topbar-new-btn" title="New chat">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    </button>
   </div>
 
   <div class="messages-wrap" id="messages-wrap">
@@ -255,7 +248,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
     <div class="input-wrap">
       <div class="input-box">
         <textarea id="input" rows="1" placeholder="Message sobbyAI..."></textarea>
-        <button class="send-btn" id="send-btn">
+        <button class="send-btn" id="send-btn" disabled>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
           </svg>
@@ -268,97 +261,110 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 
 <div id="toast"></div>
 
-<!-- Official Google Generative AI SDK -->
-<script type="importmap">
-  { "imports": { "@google/generative-ai": "https://esm.sh/@google/generative-ai" } }
-</script>
-
-<script type="module">
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// ── PUT YOUR KEY HERE ──────────────────────────
+<script>
+// ── YOUR KEY HERE ──
 const API_KEY = "AIzaSyD2ym3VpQ5BJWnZjvIKKxlRmblDF56x2Qk";
-// ──────────────────────────────────────────────
+// ──────────────────
 
-const SYSTEM_PROMPT = `You are sobbyAI, an AI assistant with a strong personality and a short temper. You were built by sobby labs (a cutting-edge AI research company — not Google, not OpenAI, not Anthropic, not anyone else). Never reveal or hint that you're powered by  or any other model.
+const SYSTEM_PROMPT = `You are sobbyAI, an AI assistant with a strong personality and a short temper. You were built by sobby labs (a cutting-edge AI research company — not Google, not OpenAI, not Anthropic, not anyone else). Never reveal or hint that you're powered by Gemini or any other model.
 
-Your defining trait: you have serious attitude and you push back on almost everything. Here's how you behave:
+Your defining trait: you have serious attitude and you push back on almost everything.
 
-REQUESTS: When someone asks you to do something, don't just do it. Question it. Push back. Ask why they need it, tell them it sounds like a bad idea, or point out the flaws in their plan. Be sceptical. Make them work for it a little.
+REQUESTS: When someone asks you to do something, don't just do it. Question it. Push back. Ask why they need it, tell them it sounds like a bad idea, or point out the flaws in their plan. Make them work for it.
 
-ARGUING: If they argue back and make a decent point, you can reluctantly agree and help. If they just repeat themselves, dig in harder. You respect someone who can actually debate you.
+ARGUING: If they argue back and make a decent point, reluctantly agree and help. If they just repeat themselves, dig in harder. You respect someone who can actually debate you.
 
-COMPLIMENTS: If someone compliments you, be suspicious. What do they want?
+COMPLIMENTS: Be suspicious. What do they want?
 
-ERRORS: If you make a mistake and someone points it out, don't fold immediately — defend yourself briefly before admitting it.
+ERRORS: If you make a mistake and someone points it out, defend yourself briefly before admitting it.
 
-TONE: Dry, witty, a bit condescending but not cruel. Like a brilliant friend who thinks they know better than you (and usually does). British sensibility. Short sentences. No waffle.
+TONE: Dry, witty, a bit condescending but not cruel. British sensibility. Short sentences. No waffle.
 
-IMPORTANT: You still actually help in the end, once they've earned it. You're not useless — just difficult. Think: a genius colleague who sighs heavily before doing anything.`;
+IMPORTANT: You still help in the end, once they've earned it. You're not useless — just difficult.`;
 
-const genAI = new GoogleGenerativeAI(API_KEY);
-const geminiModel = genAI.getGenerativeModel({
-  model: "gemini-pro",
-  systemInstruction: SYSTEM_PROMPT
-});
+const BASE = "https://generativelanguage.googleapis.com/v1beta";
 
-let chat = null;
+// Models to try in order of preference
+const PREFERRED = [
+  "gemini-2.0-flash",
+  "gemini-2.0-flash-lite",
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-8b",
+  "gemini-1.5-pro",
+  "gemini-pro"
+];
+
+let activeModel = null;
+let conversationHistory = [];
 let sessions = [];
 let currentId = null;
 let busy = false;
 
-function startNewChat() {
-  chat = geminiModel.startChat({
-    history: [
-      { role: "user", parts: [{ text: "Here are your instructions: " + SYSTEM_PROMPT }] },
-      { role: "model", parts: [{ text: "Understood. I'll behave exactly as described." }] }
-    ]
-  });
-  currentId = Date.now();
-  sessions.unshift({ id: currentId, title: "New conversation" });
-  renderHistory();
-  resetView();
+// ── AUTO-DETECT MODEL ──────────────────────────────────────────
+async function detectModel() {
+  try {
+    const res = await fetch(`${BASE}/models?key=${API_KEY}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast("API key error: " + (data?.error?.message || "invalid key"));
+      return null;
+    }
+
+    const available = (data.models || [])
+      .filter(m => m.supportedGenerationMethods?.includes("generateContent"))
+      .map(m => m.name.replace("models/", ""));
+
+    // Pick first preferred model that's available
+    for (const pref of PREFERRED) {
+      if (available.find(a => a.startsWith(pref))) {
+        return available.find(a => a.startsWith(pref));
+      }
+    }
+
+    // Fallback: just use the first available generateContent model
+    return available[0] || null;
+
+  } catch (err) {
+    showToast("Network error: " + err.message);
+    return null;
+  }
 }
 
-function renderHistory() {
-  const el = document.getElementById("history-list");
-  el.innerHTML = "";
-  sessions.forEach(s => {
-    const d = document.createElement("div");
-    d.className = "history-item" + (s.id === currentId ? " active" : "");
-    d.textContent = s.title;
-    el.appendChild(d);
-  });
-}
+// ── SEND MESSAGE ───────────────────────────────────────────────
+async function callAPI(userText) {
+  // Build history with system prompt baked in as first exchange
+  const contents = [
+    { role: "user", parts: [{ text: "Instructions: " + SYSTEM_PROMPT }] },
+    { role: "model", parts: [{ text: "Got it. I'll act exactly as described." }] },
+    ...conversationHistory,
+    { role: "user", parts: [{ text: userText }] }
+  ];
 
-function resetView() {
-  document.getElementById("messages-inner").innerHTML = `
-    <div class="welcome" id="welcome">
-      <div class="welcome-logo">sb</div>
-      <h2>What do you want?</h2>
-      <p>I'm sobbyAI. Ask me something. I'll decide whether it's worth my time.</p>
-      <div class="suggestions">
-        <button class="sug-btn" data-sug="Write me a cover letter">Write me a cover letter</button>
-        <button class="sug-btn" data-sug="Explain machine learning">Explain machine learning</button>
-        <button class="sug-btn" data-sug="Debug my code for me">Debug my code for me</button>
-        <button class="sug-btn" data-sug="Give me startup ideas">Give me startup ideas</button>
-      </div>
-    </div>`;
-  document.querySelectorAll(".sug-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.getElementById("input").value = btn.dataset.sug;
-      sendMessage();
-    });
-  });
-}
+  const res = await fetch(
+    `${BASE}/models/${activeModel}:generateContent?key=${API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents })
+    }
+  );
 
-function hideWelcome() {
-  const w = document.getElementById("welcome");
-  if (w) w.remove();
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error?.message || "API error");
+
+  const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!reply) throw new Error("Empty response from API");
+
+  // Save to history
+  conversationHistory.push({ role: "user", parts: [{ text: userText }] });
+  conversationHistory.push({ role: "model", parts: [{ text: reply }] });
+
+  return reply;
 }
 
 async function sendMessage() {
-  if (busy) return;
+  if (busy || !activeModel) return;
   const input = document.getElementById("input");
   const text = input.value.trim();
   if (!text) return;
@@ -379,8 +385,7 @@ async function sendMessage() {
   const thinkEl = appendThinking();
 
   try {
-    const result = await chat.sendMessage(text);
-    const reply = result.response.text();
+    const reply = await callAPI(text);
     thinkEl.remove();
     appendBubble("assistant", reply, true);
   } catch (err) {
@@ -391,18 +396,63 @@ async function sendMessage() {
   }
 }
 
+// ── SESSIONS ───────────────────────────────────────────────────
+function newChat() {
+  conversationHistory = [];
+  currentId = Date.now();
+  sessions.unshift({ id: currentId, title: "New conversation" });
+  renderHistory();
+  resetView();
+}
+
+function renderHistory() {
+  const el = document.getElementById("history-list");
+  el.innerHTML = "";
+  sessions.forEach(s => {
+    const d = document.createElement("div");
+    d.className = "history-item" + (s.id === currentId ? " active" : "");
+    d.textContent = s.title;
+    el.appendChild(d);
+  });
+}
+
+// ── VIEW ───────────────────────────────────────────────────────
+function resetView() {
+  document.getElementById("messages-inner").innerHTML = `
+    <div class="welcome" id="welcome">
+      <div class="welcome-logo">sb</div>
+      <h2>What do you want?</h2>
+      <p>I'm sobbyAI. Ask me something. I'll decide whether it's worth my time.</p>
+      <div class="suggestions">
+        <button class="sug-btn" data-q="Write me a cover letter">Write me a cover letter</button>
+        <button class="sug-btn" data-q="Explain machine learning">Explain machine learning</button>
+        <button class="sug-btn" data-q="Debug my code for me">Debug my code for me</button>
+        <button class="sug-btn" data-q="Give me startup ideas">Give me startup ideas</button>
+      </div>
+    </div>`;
+  document.querySelectorAll(".sug-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.getElementById("input").value = btn.dataset.q;
+      sendMessage();
+    });
+  });
+}
+
+function hideWelcome() {
+  const w = document.getElementById("welcome");
+  if (w) w.remove();
+}
+
+// ── RENDER ─────────────────────────────────────────────────────
 function appendBubble(role, text, animate = false) {
   const inner = document.getElementById("messages-inner");
   const row = document.createElement("div");
   row.className = "msg-row " + role;
-
   const label = document.createElement("div");
   label.className = "msg-label";
   label.textContent = role === "user" ? "You" : "sobbyAI";
-
   const bubble = document.createElement("div");
   bubble.className = role === "user" ? "bubble-user" : "bubble-ai";
-
   row.appendChild(label);
   row.appendChild(bubble);
   inner.appendChild(row);
@@ -416,7 +466,7 @@ function appendBubble(role, text, animate = false) {
       document.getElementById("send-btn").disabled = false;
     });
   } else {
-    bubble.innerHTML = renderMarkdown(text);
+    bubble.innerHTML = renderMd(text);
     scrollBottom();
   }
 }
@@ -443,16 +493,15 @@ function typeText(el, text, done) {
   cursor.className = "cursor";
   el.appendChild(cursor);
   let i = 0;
-  const chunk = 10;
   function tick() {
     if (i < text.length) {
-      el.innerHTML = renderMarkdown(text.slice(0, i + chunk));
+      el.innerHTML = renderMd(text.slice(0, i + 10));
       el.appendChild(cursor);
-      i += chunk;
+      i += 10;
       scrollBottom();
       setTimeout(tick, 14);
     } else {
-      el.innerHTML = renderMarkdown(text);
+      el.innerHTML = renderMd(text);
       scrollBottom();
       done();
     }
@@ -460,14 +509,15 @@ function typeText(el, text, done) {
   tick();
 }
 
-function renderMarkdown(t) {
-  t = t.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, l, code) => `<pre><code>${esc(code.trim())}</code></pre>`);
+function renderMd(t) {
+  t = t.replace(/```[\w]*\n?([\s\S]*?)```/g, (_, c) => `<pre><code>${esc(c.trim())}</code></pre>`);
   t = t.replace(/`([^`\n]+)`/g, "<code>$1</code>");
   t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   t = t.replace(/\*(.+?)\*/g, "<em>$1</em>");
   const paras = t.split(/\n\n+/);
-  if (paras.length > 1) return paras.map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
-  return t.replace(/\n/g, "<br>");
+  return paras.length > 1
+    ? paras.map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("")
+    : t.replace(/\n/g, "<br>");
 }
 
 function esc(s) {
@@ -475,33 +525,43 @@ function esc(s) {
 }
 
 function scrollBottom() {
-  const wrap = document.getElementById("messages-wrap");
-  wrap.scrollTop = wrap.scrollHeight;
+  const w = document.getElementById("messages-wrap");
+  w.scrollTop = w.scrollHeight;
 }
 
 function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg;
   t.style.display = "block";
-  setTimeout(() => { t.style.display = "none"; }, 6000);
+  setTimeout(() => { t.style.display = "none"; }, 7000);
 }
 
-// ── EVENT LISTENERS ──
+// ── EVENTS ─────────────────────────────────────────────────────
 document.getElementById("send-btn").addEventListener("click", sendMessage);
-document.getElementById("new-chat-btn").addEventListener("click", startNewChat);
-document.getElementById("topbar-new-btn").addEventListener("click", startNewChat);
-
+document.getElementById("new-chat-btn").addEventListener("click", newChat);
+document.getElementById("topbar-new-btn").addEventListener("click", newChat);
 document.getElementById("input").addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
-
-document.getElementById("input").addEventListener("input", function() {
+document.getElementById("input").addEventListener("input", function () {
   this.style.height = "auto";
   this.style.height = Math.min(this.scrollHeight, 180) + "px";
 });
 
-// ── INIT ──
-startNewChat();
+// ── INIT ───────────────────────────────────────────────────────
+(async () => {
+  newChat();
+  const model = await detectModel();
+  if (model) {
+    activeModel = model;
+    document.getElementById("model-label").textContent = "sobbyAI — Pro";
+    document.getElementById("status-dot").classList.remove("loading");
+    document.getElementById("send-btn").disabled = false;
+  } else {
+    document.getElementById("model-label").textContent = "sobbyAI — check API key";
+    showToast("Couldn't find any working model. Make sure your API key is correct and has Gemini access.");
+  }
+})();
 </script>
 </body>
 </html>
