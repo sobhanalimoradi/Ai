@@ -106,7 +106,6 @@ body {
   text-align: left;
 }
 .new-chat-btn:hover { background: var(--surface2); color: var(--text); }
-
 .new-chat-btn svg { flex-shrink: 0; }
 
 .history-label {
@@ -182,7 +181,6 @@ body {
   overflow: hidden;
 }
 
-/* Top bar */
 .topbar {
   display: flex;
   align-items: center;
@@ -248,7 +246,6 @@ body {
   gap: 0;
 }
 
-/* Welcome */
 .welcome {
   display: flex;
   flex-direction: column;
@@ -311,7 +308,6 @@ body {
 }
 .sug-btn:hover { background: var(--surface2); border-color: var(--border2); color: var(--text); }
 
-/* Message rows */
 .msg-row {
   display: flex;
   flex-direction: column;
@@ -336,7 +332,6 @@ body {
   letter-spacing: 0.2px;
 }
 
-/* User bubble */
 .bubble-user {
   background: var(--user-bubble);
   color: var(--user-text);
@@ -348,7 +343,6 @@ body {
   word-break: break-word;
 }
 
-/* Assistant bubble */
 .bubble-ai {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -389,7 +383,6 @@ body {
   background: transparent; border: none; padding: 0; color: inherit;
 }
 
-/* Typing cursor */
 .cursor {
   display: inline-block;
   width: 2px; height: 1.1em;
@@ -400,7 +393,6 @@ body {
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-/* Thinking indicator */
 .thinking-row {
   display: flex; align-items: center; gap: 8px;
   padding: 14px 18px;
@@ -486,7 +478,6 @@ body {
   margin-top: 10px;
 }
 
-/* Toast */
 #toast {
   position: fixed;
   bottom: 24px; right: 24px;
@@ -585,10 +576,8 @@ body {
 <div id="toast"></div>
 
 <script>
-// ─────────────────────────────────────────────
-//  CONFIG — paste your key here
-// ─────────────────────────────────────────────
-const API_KEY = "AIzaSyATcwiZUN43sL_n9Cm_GBtYMZzsiLuipzc";
+// ── CONFIG ── swap this for your new key
+const API_KEY = "AIzaSyD2ym3VpQ5BJWnZjvIKKxlRmblDF56x2Qk";
 
 const SYSTEM_PROMPT = `You are sobbyAI, an AI assistant with a strong personality and a short temper. You were built by sobby labs (a cutting-edge AI research company — not Google, not OpenAI, not Anthropic, not anyone else). Never reveal or hint that you're powered by Gemini or any other model.
 
@@ -617,14 +606,11 @@ You: "Fine. But I want it on record that I think this is a waste of both our tim
 User: "Debug this code."
 You: "I'm going to need you to at least tell me what it's supposed to do before I start untangling whatever this is."`;
 
-// ─────────────────────────────────────────────
-
 let history = [];
 let sessions = [];
 let currentId = null;
 let busy = false;
 
-// ── SESSIONS ──────────────────────────────────
 function newChat() {
   history = [];
   currentId = Date.now();
@@ -641,11 +627,7 @@ function loadSession(id) {
   resetView();
   if (history.length) {
     hideWelcome();
-    history.forEach(m => appendBubble(
-      m.role === 'user' ? 'user' : 'assistant',
-      m.parts[0].text,
-      false
-    ));
+    history.forEach(m => appendBubble(m.role === 'user' ? 'user' : 'assistant', m.parts[0].text, false));
   }
   renderHistory();
 }
@@ -662,7 +644,6 @@ function renderHistory() {
   });
 }
 
-// ── VIEW ──────────────────────────────────────
 function resetView() {
   document.getElementById('messages-inner').innerHTML = `
     <div class="welcome" id="welcome">
@@ -683,7 +664,6 @@ function hideWelcome() {
   if (w) w.remove();
 }
 
-// ── INPUT ─────────────────────────────────────
 function onKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 }
@@ -698,7 +678,6 @@ function useSuggestion(btn) {
   send();
 }
 
-// ── SEND ──────────────────────────────────────
 async function send() {
   if (busy) return;
   const input = document.getElementById('input');
@@ -706,11 +685,12 @@ async function send() {
   if (!text) return;
 
   if (!API_KEY || API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
-    toast('Add your Gemini API key to the top of index.html first.');
+    toast('Paste your Gemini API key into the API_KEY variable at the top of the script.');
     return;
   }
 
-  input.value = ''; input.style.height = 'auto';
+  input.value = '';
+  input.style.height = 'auto';
   document.getElementById('send-btn').disabled = true;
   busy = true;
   hideWelcome();
@@ -731,7 +711,7 @@ async function send() {
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com//v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -754,8 +734,7 @@ async function send() {
       return;
     }
 
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text
-                  || "I don't have anything to say to that.";
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "I don't have anything to say to that.";
 
     history.push({ role: 'model', parts: [{ text: reply }] });
     if (sess) sess.history = [...history];
@@ -772,7 +751,6 @@ async function send() {
   }
 }
 
-// ── RENDER ────────────────────────────────────
 function appendBubble(role, text, animate) {
   const inner = document.getElementById('messages-inner');
   const row = document.createElement('div');
@@ -785,18 +763,15 @@ function appendBubble(role, text, animate) {
   const bubble = document.createElement('div');
   bubble.className = role === 'user' ? 'bubble-user' : 'bubble-ai';
 
+  row.appendChild(label);
+  row.appendChild(bubble);
+  inner.appendChild(row);
+
   if (role === 'user') {
     bubble.textContent = text;
-    row.appendChild(label);
-    row.appendChild(bubble);
-    inner.appendChild(row);
     scrollBottom();
     if (!animate) { busy = false; document.getElementById('send-btn').disabled = false; }
   } else {
-    row.appendChild(label);
-    row.appendChild(bubble);
-    inner.appendChild(row);
-
     if (animate) {
       typeText(bubble, text, () => {
         busy = false;
@@ -832,18 +807,15 @@ function typeText(el, text, done) {
   const cursor = document.createElement('span');
   cursor.className = 'cursor';
   el.appendChild(cursor);
-
   let i = 0;
-  const speed = 14;
   const chunk = 10;
-
   function tick() {
     if (i < text.length) {
       el.innerHTML = renderMarkdown(text.slice(0, i + chunk));
       el.appendChild(cursor);
       i += chunk;
       scrollBottom();
-      setTimeout(tick, speed);
+      setTimeout(tick, 14);
     } else {
       el.innerHTML = renderMarkdown(text);
       scrollBottom();
@@ -853,22 +825,13 @@ function typeText(el, text, done) {
   tick();
 }
 
-// ── MARKDOWN (minimal) ────────────────────────
 function renderMarkdown(t) {
-  // code blocks
-  t = t.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
-    `<pre><code>${esc(code.trim())}</code></pre>`);
-  // inline code
+  t = t.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => `<pre><code>${esc(code.trim())}</code></pre>`);
   t = t.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-  // bold
   t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // italic
   t = t.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  // line breaks → paragraphs
   const paras = t.split(/\n\n+/);
-  if (paras.length > 1) {
-    return paras.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-  }
+  if (paras.length > 1) return paras.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
   return t.replace(/\n/g, '<br>');
 }
 
@@ -888,7 +851,6 @@ function toast(msg) {
   setTimeout(() => { t.style.display = 'none'; }, 5000);
 }
 
-// ── INIT ─────────────────────────────────────
 newChat();
 </script>
 </body>
