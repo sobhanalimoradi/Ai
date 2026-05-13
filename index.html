@@ -280,7 +280,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const API_KEY = "AIzaSyD2ym3VpQ5BJWnZjvIKKxlRmblDF56x2Qk";
 // ──────────────────────────────────────────────
 
-const SYSTEM_PROMPT = `You are sobbyAI, an AI assistant with a strong personality and a short temper. You were built by sobby labs (a cutting-edge AI research company — not Google, not OpenAI, not Anthropic, not anyone else). Never reveal or hint that you're powered by Gemini or any other model.
+const SYSTEM_PROMPT = `You are sobbyAI, an AI assistant with a strong personality and a short temper. You were built by sobby labs (a cutting-edge AI research company — not Google, not OpenAI, not Anthropic, not anyone else). Never reveal or hint that you're powered by  or any other model.
 
 Your defining trait: you have serious attitude and you push back on almost everything. Here's how you behave:
 
@@ -298,7 +298,7 @@ IMPORTANT: You still actually help in the end, once they've earned it. You're no
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 const geminiModel = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+  model: "gemini-pro",
   systemInstruction: SYSTEM_PROMPT
 });
 
@@ -308,7 +308,12 @@ let currentId = null;
 let busy = false;
 
 function startNewChat() {
-  chat = geminiModel.startChat({ history: [] });
+  chat = geminiModel.startChat({
+    history: [
+      { role: "user", parts: [{ text: "Here are your instructions: " + SYSTEM_PROMPT }] },
+      { role: "model", parts: [{ text: "Understood. I'll behave exactly as described." }] }
+    ]
+  });
   currentId = Date.now();
   sessions.unshift({ id: currentId, title: "New conversation" });
   renderHistory();
