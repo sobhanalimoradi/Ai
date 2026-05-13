@@ -84,6 +84,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 }
 .status-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
 .status-dot.loading { background: #f59e0b; animation: pulse 1s ease infinite; }
+.status-dot.error { background: #ef4444; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 .topbar-btn {
   width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 7px;
@@ -262,9 +263,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); disp
 <div id="toast"></div>
 
 <script>
-// ── YOUR KEY HERE ──
-const API_KEY = "AIzaSyD2ym3VpQ5BJWnZjvIKKxlRmblDF56x2Qk";
-// ──────────────────
+// ── PUT YOUR KEY HERE ──
+const API_KEY = "AIzaSyDw_6uufHThOQ79SoW7BFC5MoubKCTn_YA";
+// ──────────────────────
 
 const SYSTEM_PROMPT = `You are sobbyAI, an AI assistant with a strong personality and a short temper. You were built by sobby labs (a cutting-edge AI research company — not Google, not OpenAI, not Anthropic, not anyone else). Never reveal or hint that you're powered by Gemini or any other model.
 
@@ -284,56 +285,58 @@ IMPORTANT: You still help in the end, once they've earned it. You're not useless
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
 
-// Models to try in order of preference
+// Order of preference — lite models first since they have more generous free tier
 const PREFERRED = [
-  "gemini-2.0-flash",
+  "gemini-2.5-flash-lite",
   "gemini-2.0-flash-lite",
-  "gemini-1.5-flash",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
   "gemini-1.5-flash-8b",
-  "gemini-1.5-pro",
-  "gemini-pro"
+  "gemini-1.5-flash",
+  "gemini-1.5-pro"
 ];
 
-let activeModel = null;
+let availableModels = [];   // all models the key has access to
+let modelQueue = [];        // models to try in order, working ones bubble to front
 let conversationHistory = [];
 let sessions = [];
 let currentId = null;
 let busy = false;
 
-// ── AUTO-DETECT MODEL ──────────────────────────────────────────
-async function detectModel() {
+// ── DETECT MODELS ──────────────────────────────────────────────
+async function detectModels() {
   try {
     const res = await fetch(`${BASE}/models?key=${API_KEY}`);
     const data = await res.json();
-
     if (!res.ok) {
-      showToast("API key error: " + (data?.error?.message || "invalid key"));
-      return null;
+      showToast("API key invalid or unauthorized: " + (data?.error?.message || ""));
+      return [];
     }
-
-    const available = (data.models || [])
+    const all = (data.models || [])
       .filter(m => m.supportedGenerationMethods?.includes("generateContent"))
       .map(m => m.name.replace("models/", ""));
 
-    // Pick first preferred model that's available
+    // Sort by preference
+    const ordered = [];
     for (const pref of PREFERRED) {
-      if (available.find(a => a.startsWith(pref))) {
-        return available.find(a => a.startsWith(pref));
+      const match = all.find(a => a === pref || a.startsWith(pref + "-"));
+      if (match && !ordered.includes(match)) ordered.push(match);
+    }
+    // Add any remaining models at the end
+    for (const m of all) {
+      if (!ordered.includes(m) && !m.includes("embedding") && !m.includes("aqa")) {
+        ordered.push(m);
       }
     }
-
-    // Fallback: just use the first available generateContent model
-    return available[0] || null;
-
+    return ordered;
   } catch (err) {
     showToast("Network error: " + err.message);
-    return null;
+    return [];
   }
 }
 
-// ── SEND MESSAGE ───────────────────────────────────────────────
+// ── API CALL WITH FALLBACK ─────────────────────────────────────
 async function callAPI(userText) {
-  // Build history with system prompt baked in as first exchange
   const contents = [
     { role: "user", parts: [{ text: "Instructions: " + SYSTEM_PROMPT }] },
     { role: "model", parts: [{ text: "Got it. I'll act exactly as described." }] },
@@ -341,30 +344,61 @@ async function callAPI(userText) {
     { role: "user", parts: [{ text: userText }] }
   ];
 
-  const res = await fetch(
-    `${BASE}/models/${activeModel}:generateContent?key=${API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents })
+  let lastError = null;
+
+  // Try each model in queue, on quota error try the next
+  for (let i = 0; i < modelQueue.length; i++) {
+    const model = modelQueue[i];
+    try {
+      const res = await fetch(
+        `${BASE}/models/${model}:generateContent?key=${API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents })
+        }
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errMsg = data?.error?.message || "API error";
+        lastError = errMsg;
+        // 429 (quota) or 403 (permission) — try next model
+        if (res.status === 429 || res.status === 403 || res.status === 404) {
+          console.warn(`Model ${model} failed (${res.status}): ${errMsg}. Trying next...`);
+          continue;
+        }
+        throw new Error(errMsg);
+      }
+
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!reply) {
+        lastError = "Empty response (possibly safety-blocked)";
+        continue;
+      }
+
+      // Move working model to front of queue
+      if (i > 0) {
+        modelQueue.splice(i, 1);
+        modelQueue.unshift(model);
+        document.getElementById("model-label").textContent = "sobbyAI — Pro";
+      }
+
+      conversationHistory.push({ role: "user", parts: [{ text: userText }] });
+      conversationHistory.push({ role: "model", parts: [{ text: reply }] });
+      return reply;
+
+    } catch (err) {
+      lastError = err.message;
+      continue;
     }
-  );
+  }
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error?.message || "API error");
-
-  const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!reply) throw new Error("Empty response from API");
-
-  // Save to history
-  conversationHistory.push({ role: "user", parts: [{ text: userText }] });
-  conversationHistory.push({ role: "model", parts: [{ text: reply }] });
-
-  return reply;
+  throw new Error(lastError || "All models exhausted");
 }
 
 async function sendMessage() {
-  if (busy || !activeModel) return;
+  if (busy || modelQueue.length === 0) return;
   const input = document.getElementById("input");
   const text = input.value.trim();
   if (!text) return;
@@ -390,7 +424,7 @@ async function sendMessage() {
     appendBubble("assistant", reply, true);
   } catch (err) {
     thinkEl.remove();
-    showToast("Error: " + err.message);
+    showToast("All models failed: " + err.message);
     busy = false;
     document.getElementById("send-btn").disabled = false;
   }
@@ -416,7 +450,6 @@ function renderHistory() {
   });
 }
 
-// ── VIEW ───────────────────────────────────────────────────────
 function resetView() {
   document.getElementById("messages-inner").innerHTML = `
     <div class="welcome" id="welcome">
@@ -533,7 +566,7 @@ function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg;
   t.style.display = "block";
-  setTimeout(() => { t.style.display = "none"; }, 7000);
+  setTimeout(() => { t.style.display = "none"; }, 8000);
 }
 
 // ── EVENTS ─────────────────────────────────────────────────────
@@ -551,15 +584,19 @@ document.getElementById("input").addEventListener("input", function () {
 // ── INIT ───────────────────────────────────────────────────────
 (async () => {
   newChat();
-  const model = await detectModel();
-  if (model) {
-    activeModel = model;
+  availableModels = await detectModels();
+  modelQueue = [...availableModels];
+
+  if (modelQueue.length > 0) {
     document.getElementById("model-label").textContent = "sobbyAI — Pro";
     document.getElementById("status-dot").classList.remove("loading");
     document.getElementById("send-btn").disabled = false;
+    console.log("Will try these models in order:", modelQueue);
   } else {
-    document.getElementById("model-label").textContent = "sobbyAI — check API key";
-    showToast("Couldn't find any working model. Make sure your API key is correct and has Gemini access.");
+    document.getElementById("model-label").textContent = "sobbyAI — no access";
+    document.getElementById("status-dot").classList.remove("loading");
+    document.getElementById("status-dot").classList.add("error");
+    showToast("No models available for this API key. Check key or generate a new one at aistudio.google.com");
   }
 })();
 </script>
